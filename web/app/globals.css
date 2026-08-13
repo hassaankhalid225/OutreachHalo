@@ -1,0 +1,223 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /*
+   * Light theme — the default.
+   *
+   * Elevation is inverted from a dark UI: the canvas is a violet-tinted paper
+   * and cards are pure white, so the translucent `bg-card/40..70` fills used
+   * throughout still read as raised surfaces. A neutral-grey canvas would flatten
+   * them and make the whole product look like a default admin template.
+   */
+  :root {
+    /* Canvas — off-white with a cool violet cast so it belongs to the accent. */
+    --background: 250 30% 97.5%;
+    --foreground: 250 30% 11%;
+
+    /* Cards sit above the canvas. Pure white, held by a hairline border. */
+    --card: 0 0% 100%;
+    --card-foreground: 250 30% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 250 30% 11%;
+
+    /* Electric violet, darkened from the dark-theme value so white text on it
+       and it on white both clear AA. */
+    --primary: 252 84% 57%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 250 24% 94.5%;
+    --secondary-foreground: 250 30% 11%;
+
+    --muted: 250 22% 93%;
+    --muted-foreground: 250 8% 44%;
+
+    --accent: 250 24% 94.5%;
+    --accent-foreground: 250 30% 11%;
+
+    --destructive: 358 68% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 250 20% 90%;
+    --input: 250 20% 86%;
+    --ring: 252 84% 57%;
+
+    /* Product semantics — re-derived for a light ground rather than reused from
+       the dark palette, which reads washed out and fails contrast on white.
+       Tuned so each one clears WCAG AA (4.5:1) both as chip text on its own 12%
+       tint and as a solid fill behind white text. */
+    --hot: 358 66% 44%;
+    --warm: 28 92% 31%;
+    --cold: 206 84% 35%;
+    --positive: 152 62% 26%;
+
+    --radius: 0.75rem;
+  }
+
+  /*
+   * Dark theme. `darkMode: 'class'` is wired in tailwind.config.ts, so adding
+   * `class="dark"` to <html> switches the whole product over. Light is what the
+   * UI was designed and verified against; this is the tuned counterpart.
+   */
+  .dark {
+    --background: 250 24% 4%;
+    --foreground: 250 12% 96%;
+
+    --card: 250 22% 7%;
+    --card-foreground: 250 12% 96%;
+
+    --popover: 250 22% 8%;
+    --popover-foreground: 250 12% 96%;
+
+    --primary: 252 100% 70%;
+    --primary-foreground: 250 30% 8%;
+
+    --secondary: 250 16% 13%;
+    --secondary-foreground: 250 12% 96%;
+
+    --muted: 250 15% 12%;
+    --muted-foreground: 250 7% 63%;
+
+    --accent: 250 16% 14%;
+    --accent-foreground: 250 12% 96%;
+
+    --destructive: 358 75% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 250 14% 17%;
+    --input: 250 14% 17%;
+    --ring: 252 100% 70%;
+
+    --hot: 358 80% 65%;
+    --warm: 35 95% 60%;
+    --cold: 205 90% 62%;
+    --positive: 152 60% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Sticky header clearance for in-page anchors. */
+    scroll-padding-top: 6rem;
+    -webkit-tap-highlight-color: transparent;
+    color-scheme: light;
+  }
+
+  .dark html,
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    font-variation-settings: 'opsz' 32;
+  }
+
+  ::selection {
+    @apply bg-primary/20 text-foreground;
+  }
+
+  /* Scrollbars that match the canvas instead of punching a hole in it. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border));
+    border-radius: 9999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground) / 0.5);
+    background-clip: content-box;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Section eyebrow — small, tracked-out, accent-tinted label above every H2. */
+  .eyebrow {
+    @apply inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/[0.07]
+           px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-primary;
+  }
+
+  /* Hairline card. The whole site is built out of these. */
+  .surface {
+    @apply rounded-2xl border border-border bg-card;
+  }
+
+  .surface-hover {
+    @apply transition-all duration-200 hover:border-primary/25 hover:bg-card
+           hover:shadow-halo-lift;
+  }
+
+  /* The soft gradient wash that sits behind hero-type sections. */
+  .glow-blob {
+    @apply pointer-events-none absolute -z-10 rounded-full blur-[110px];
+  }
+
+  /* Headlines get a subtle top-to-bottom fade rather than flat black — it keeps
+     the large type from looking stamped on. */
+  .text-gradient {
+    @apply bg-gradient-to-br from-foreground via-foreground to-foreground/65 bg-clip-text text-transparent;
+  }
+
+  .grid-lines {
+    background-image:
+      linear-gradient(to right, hsl(var(--border) / 0.7) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.7) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+  }
+}
+
+@layer utilities {
+  .marquee-mask {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 8%,
+      #000 92%,
+      transparent
+    );
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

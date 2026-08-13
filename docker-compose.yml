@@ -1,0 +1,50 @@
+name: outreachhalo
+
+# Local Postgres so you can run the real schema, the real seed and the real
+# backend without creating a Supabase project first. Supabase Auth still needs
+# a hosted project — until you add one, the frontend runs in demo mode.
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: outreachhalo
+      POSTGRES_PASSWORD: outreachhalo
+      POSTGRES_DB: outreachhalo
+    ports:
+      - '54322:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      # 0001 runs first, then 0002 — Postgres applies these in filename order on
+      # first boot only. Re-run them manually after that (see README).
+      - ./supabase/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U outreachhalo -d outreachhalo']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://outreachhalo:outreachhalo@db:5432/outreachhalo
+      ENVIRONMENT: development
+      APP_URL: http://localhost:3000
+      CORS_ORIGINS: http://localhost:3000
+      SUPABASE_JWT_SECRET: ${SUPABASE_JWT_SECRET:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-opus-4-8}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      STRIPE_PRICE_PRO: ${STRIPE_PRICE_PRO:-}
+      STRIPE_PRICE_GROWTH: ${STRIPE_PRICE_GROWTH:-}
+    ports:
+      - '8000:8000'
+
+volumes:
+  postgres-data:

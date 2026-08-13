@@ -1,0 +1,17 @@
+import { NextResponse } from 'next/server'
+
+import { getSession } from '@/lib/auth'
+import { getConversationDetail, getSettings } from '@/lib/data/repo'
+
+export const dynamic = 'force-dynamic'
+
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getSession()
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { id } = await params
+  const [detail, settings] = await Promise.all([getConversationDetail(id), getSettings()])
+  if (!detail) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+  return NextResponse.json({ ...detail, booking_url: settings.booking_url })
+}
